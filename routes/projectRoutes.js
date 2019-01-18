@@ -59,16 +59,25 @@ router.post('/', async (req, res) => {
 //   }
 // });
 
-router.get('/:id/action', (req, res) => {
-  db.from('project')
-    .innerJoin('action', 'project.id', 'action.action_id')
-    .where('action.action_id', req.params.id)
-    .then(function(data) {
-      res.send(data);
-      console.log('data... ', data);
-    })
-    .catch(err => res.status(responseStatus.serverError).json(err));
-  //   console.log('err....', err);
+router.get('/:id/action', async (req, res) => {
+  //   db.from('project')
+  //     .innerJoin('action', 'project.id', 'action.action_id')
+  //     .where('action.action_id', req.params.id)
+  //     .then(function(data) {
+  //       res.send(data);
+  //       console.log('data... ', data);
+  //     })
+  try {
+    const project = await db
+      .from('project')
+      .innerJoin('action', 'project.id', 'action.action_id')
+      .where('action.action_id', req.params.id);
+    res.status(200).json(project);
+  } catch (error) {
+    res
+      .status(responseStatus.serverError)
+      .json({ message: 'Error retreiving data.' });
+  }
 });
 
 module.exports = router;
