@@ -74,4 +74,24 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+router.put('/:id', async (req, res) => {
+  try {
+    const changes = req.body;
+    const myUpdate = await db('project')
+      .where({ id: req.params.id })
+      .update(changes);
+    if (!myUpdate) {
+      res
+        .status(responseStatus.badRequest)
+        .json({ message: 'This ID does not exist in the database.' });
+    } else {
+      res.status(responseStatus.success).json(myUpdate);
+    }
+  } catch (error) {
+    res
+      .status(responseStatus.badRequest)
+      .json({ errorMessage: 'Unable to update that project.' });
+  }
+});
+
 module.exports = router;

@@ -33,4 +33,41 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleteAction = await db('action')
+      .where({ id: req.params.id })
+      .del();
+    if (!deleteAction) {
+      res.status(responseStatus.badRequest);
+    } else {
+      res.status(responseStatus.success).json(deleteAction);
+    }
+  } catch (error) {
+    res
+      .status(responseStatus.serverError)
+      .json({ message: 'Error deleting action.' });
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  try {
+    const changes = req.body;
+    const myUpdate = await db('action')
+      .where({ id: req.params.id })
+      .update(changes);
+    if (!myUpdate) {
+      res
+        .status(responseStatus.badRequest)
+        .json({ message: 'This ID does not exist in the database.' });
+    } else {
+      res.status(responseStatus.success).json(myUpdate);
+    }
+  } catch (error) {
+    res
+      .status(responseStatus.badRequest)
+      .json({ errorMessage: 'Unable to update that action.' });
+  }
+});
+
 module.exports = router;
