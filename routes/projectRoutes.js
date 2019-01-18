@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const projectModel = require('../db');
 
 const knex = require('knex');
 const knexConfig = require('../knexfile');
@@ -34,45 +33,23 @@ router.post('/', async (req, res) => {
   }
 });
 
-// router.get('/:id/action', async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     // const action = await projectModel.getProjectActions();
-//     // console.log('action = ', action);
-
-//     const project = await db('project').where({ id: id[0] })
-
-//     // const project = await db('project').where({ id: id[0] });
-//     // const action = await db('action').where({ action_id: id });
-//     // const eachProject = project.map(
-//     //   task =>
-//     //     `id: ${task.id} name: ${task.name} description: ${
-//     //       task.description
-//     //     } completed: ${task.completed}`
-//     // );
-//     // const eachAction = action.map(a => `Action: ${a.description}`);
-//     // const answer = [eachProject, eachAction];
-//     // res.status(responseStatus.success).json(answer);
-//   } catch (error) {
-//     console.log('error =', error);
-//     res.status(responseStatus.serverError).json({ message: 'Error.' });
-//   }
-// });
-
 router.get('/:id/action', async (req, res) => {
-  //   db.from('project')
-  //     .innerJoin('action', 'project.id', 'action.action_id')
-  //     .where('action.action_id', req.params.id)
-  //     .then(function(data) {
-  //       res.send(data);
-  //       console.log('data... ', data);
-  //     })
   try {
-    const project = await db
+    const project = await db('project')
+      .select('id', 'name', 'description', 'completed')
+      .where({ id: req.params.id });
+    const projectActions = await db
       .from('project')
+      .select(
+        'action.id',
+        'action.description',
+        'action.notes',
+        'action.completed'
+      )
       .innerJoin('action', 'project.id', 'action.action_id')
       .where('action.action_id', req.params.id);
-    res.status(200).json(project);
+    const answer = [project, projectActions];
+    res.status(responseStatus.success).json(answer);
   } catch (error) {
     res
       .status(responseStatus.serverError)
